@@ -40,4 +40,31 @@ void Ustaw_Port_Docelowy(struct tcphdr *tcphdr, int portdocelowyint)
 tcphdr->th_dport = htons(portdocelowyint);
 }
 
+void Ustaw_Numer_Sekwencyjny(struct tcphdr *tcphdr, int numersekwencyjnyint)
+{
+	tcphdr->th_seq = htonl(numersekwencyjnyint);
+}
+
+void Ustaw_Nr_Potw_Bajtu(struct tcphdr *tcphdr, int nrpotwierdzanegobajtuint)
+{
+	tcphdr->th_ack = htonl(nrpotwierdzanegobajtuint);
+}
+void Ustaw_Zarezerwowane(struct tcphdr *tcphdr, int zarezerwowaneint)
+{
+	tcphdr->th_x2 = zarezerwowaneint;
+}
+
+void Data_Offset(struct tcphdr *tcphdr, int TCP_HDRLEN)
+{
+	tcphdr->th_off = TCP_HDRLEN / 4;
+}
+void Ustaw_Rozmiar_Okna(struct tcphdr * tcphdr,int rozmiaroknaint)
+{
+	tcphdr->th_win = htons(rozmiaroknaint);
+}
+void Ustaw_Wsk_Danych_Pilnych(struct tcphdr * tcphdr,int wskdanychpilnychint)
+{
+tcphdr->th_urp = htons(wskdanychpilnychint);
+
+}
 

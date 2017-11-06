@@ -8,11 +8,7 @@
  ============================================================================
  */
 
-
-
-
 #include <dlfcn.h>
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,66 +37,68 @@ uint8_t *allocate_ustrmem(int);
 int *allocate_intmem(int);
 void (*IF)(char *, char *);
 void (*IPZ)(char *, char*);
-void (*IPD)(char *,char*);
+void (*IPD)(char *, char*);
 void (*PZ)(struct tcphdr *, int);
 void (*PD)(struct tcphdr *, int);
+void (*SN)(struct tcphdr *, int);
+void (*NP)(struct tcphdr *, int);
+void (*RE)(struct tcphdr*, int);
+void (*DO)(struct tcphdr*, int);
+void (*UDO)(struct tcphdr*, int);
+void (*WDP)(struct tcphdr*, int);
 
 char *instrukcja = "--instrukcja";
-	char *portzrodlowy = "--portzrodlowy";
-	int portzrodlowyint = 667;
-	char *portdocelowy = "--portdocelowy";
-	int portdocelowyint=666;
-	char *numersekwencyjny = "--numersekwencyjny";
-	int numersekwencyjnyint=0;
-	char *nrpotwierdzanegobajtu = "--nrpotwierdzanegobajtu";
-	int nrpotwierdzanegobajtuint=0;
-	char *zarezerwowane = "--zarezerwowane";
-	int zarezerwowaneint=0;
-	char *znacznikFIN = "--znacznikFIN";
-	int znacznikFINint=0;
-	char *znacznikSYN = "--znacznikSYN";
-	int znacznikSYNint=1;
-	char *znacznikRST = "--znacznikRST";
-	int znacznikRSTint=0;
-	char *znacznikPSH = "--znacznikPSH";
-	int znacznikPSHint=0;
-	char *znacznikACK = "--znacznikACK";
-	int znacznikACKint=0;
-	char *znacznikURG = "--znacznikURG";
-	int znacznikURGint=0;
-	char *znacznikECE = "--znacznikECE";
-	int znacznikECEint=0;
-	char *znacznikCWR = "--znacznikCWR";
-	int znacznikCWRint=0;
-	char *rozmiarokna = "--rozmiarokna";
-	int rozmiaroknaint=65535;
-	char *wskdanychpilnych = "--wskdanychpilnych";
-	int wskdanychpilnychint=0;
-	char *interfejs = "--interfejs";
-	//char *interfejschar="wlp3s0";
-	char *interfejschar ="lo";
-	char *ipzrodlowy ="--ipzrodlowy";
-	char ipzrodlowychar[] ="192.168.255.139";
-	char *ipdocelowy ="--ipdocelowy";
-	char ipdocelowychar[] ="127.0.0.1";
+char *portzrodlowy = "--portzrodlowy";
+int portzrodlowyint = 667;
+char *portdocelowy = "--portdocelowy";
+int portdocelowyint = 666;
+char *numersekwencyjny = "--numersekwencyjny";
+int numersekwencyjnyint = 0;
+char *nrpotwierdzanegobajtu = "--nrpotwierdzanegobajtu";
+int nrpotwierdzanegobajtuint = 0;
+char *zarezerwowane = "--zarezerwowane";
+int zarezerwowaneint = 0;
+char *znacznikFIN = "--znacznikFIN";
+int znacznikFINint = 0;
+char *znacznikSYN = "--znacznikSYN";
+int znacznikSYNint = 1;
+char *znacznikRST = "--znacznikRST";
+int znacznikRSTint = 0;
+char *znacznikPSH = "--znacznikPSH";
+int znacznikPSHint = 0;
+char *znacznikACK = "--znacznikACK";
+int znacznikACKint = 0;
+char *znacznikURG = "--znacznikURG";
+int znacznikURGint = 0;
+char *znacznikECE = "--znacznikECE";
+int znacznikECEint = 0;
+char *znacznikCWR = "--znacznikCWR";
+int znacznikCWRint = 0;
+char *rozmiarokna = "--rozmiarokna";
+int rozmiaroknaint = 65535;
+char *wskdanychpilnych = "--wskdanychpilnych";
+int wskdanychpilnychint = 0;
+char *interfejs = "--interfejs";
+//char *interfejschar="wlp3s0";
+char *interfejschar = "lo";
+char *ipzrodlowy = "--ipzrodlowy";
+char ipzrodlowychar[] = "192.168.255.139";
+char *ipdocelowy = "--ipdocelowy";
+char ipdocelowychar[] = "127.0.0.1";
 
-int  i;
+int i;
 
 int main(int argc, char* argv[]) {
-
 
 	puts("USTAWIONO PARAMETRY:");
 	puts("===================================");
 
 	void *Biblioteka; // wskaznik do bilbioteki
-	int(*Funkcja)(int, int); //wskzanik do fukcji
+	int (*Funkcja)(int, int); //wskzanik do fukcji
 	//double(*Funkcja1)(int, int); //wskzanik do fukcji1
-	Biblioteka = dlopen("/home/wojciech/Pulpit/Projekt/origin/send_ip/src/biblioteka.so", RTLD_LAZY);
-
-
-
-
-
+	Biblioteka = dlopen(
+			"/home/wojciech/Pulpit/Projekt/origin/send_ip/src/biblioteka.so",
+			RTLD_LAZY);
 
 	for (i = 1; i < argc; i++) { //printf("NUMER:  %d\n",i);
 		char *argv1 = argv[i];
@@ -131,7 +129,7 @@ int main(int argc, char* argv[]) {
 		}
 		if (0 == strcmp(nrpotwierdzanegobajtu, argv1)) {
 
-			portdocelowyint = atoi(argv[i + 1]);
+			nrpotwierdzanegobajtuint = atoi(argv[i + 1]);
 			printf("numer potwierdzanego bajtu %d\n", nrpotwierdzanegobajtuint);
 
 		}
@@ -207,14 +205,14 @@ int main(int argc, char* argv[]) {
 
 			//printf("%s\n",argv[i+1]);
 			//ipzrodlowychar[16]= argv[i+1];
-			strcpy(ipzrodlowychar,argv[i+1]);
+			strcpy(ipzrodlowychar, argv[i + 1]);
 			//int dlugosc=sizeof(ipzrodlowychar)/sizeof(ipzrodlowychar[0]);
-		//	printf("dlugosc: %d",dlugosc);
+			//	printf("dlugosc: %d",dlugosc);
 			printf("IP źródłowy %s\n", ipzrodlowychar);
 		}
 		if (0 == strcmp(ipdocelowy, argv1)) {
 
-			strcpy(ipdocelowychar,argv[i+1]);
+			strcpy(ipdocelowychar, argv[i + 1]);
 
 			printf("IP docelowy %s\n", ipdocelowychar);
 		}
@@ -245,14 +243,13 @@ int main(int argc, char* argv[]) {
 	// skonfigurowanie interfejsu
 
 	IF = dlsym(Biblioteka, "Ustaw_Interfejs");
-		IF(interface, interfejschar);
+	IF(interface, interfejschar);
 
 	// Wysłanie zadania abu sprawdzic deskryptor soketa
 	if ((sd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0) {
 		perror("socket() failed to get socket descriptor for using ioctl() ");
 		exit(EXIT_FAILURE);
 	}
-
 
 	//sprawdzenie numeru interfejsu i bindowanie
 	memset(&ifr, 0, sizeof(ifr));
@@ -266,20 +263,17 @@ int main(int argc, char* argv[]) {
 
 	// Adres zrodlowy
 	IPZ = dlsym(Biblioteka, "Ustaw_IP_Zrodlowe");
-			IPZ(src_ip, ipzrodlowychar);
-
+	IPZ(src_ip, ipzrodlowychar);
 
 	// adres docelowy
- IPD =dlsym(Biblioteka, "Ustaw_IP_Docelowe");
- IPD(target,ipdocelowychar);
-
+	IPD = dlsym(Biblioteka, "Ustaw_IP_Docelowe");
+	IPD(target, ipdocelowychar);
 
 	// wypelnienie hints dla getaddrinfo().
 	memset(&hints, 0, sizeof(struct addrinfo));
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = hints.ai_flags | AI_CANONNAME;
-
 
 	if ((status = getaddrinfo(target, NULL, &hints, &res)) != 0) {
 		fprintf(stderr, "getaddrinfo() failed: %s\n", gai_strerror(status));
@@ -357,32 +351,39 @@ int main(int argc, char* argv[]) {
 	// TCP header
 
 	// Source port number (16 bits)
-	// tcphdr.th_sport = htons (atoi(argv[1]));
-	PZ=dlsym(Biblioteka,"Ustaw_Port_Zrodlowy");
+
+	PZ = dlsym(Biblioteka, "Ustaw_Port_Zrodlowy");
 	PZ(&tcphdr, portzrodlowyint);
-	//tcphdr.th_sport = htons(portzrodlowyint);
+
 
 	// Destination port number (16 bits)
-	//tcphdr.th_dport = htons (80);
-PD=dlsym(Biblioteka,"Ustaw_Port_Docelowy");
-PD(&tcphdr,portdocelowyint);
-	//tcphdr.th_dport = htons(portdocelowyint);
+
+	PD = dlsym(Biblioteka, "Ustaw_Port_Docelowy");
+	PD(&tcphdr, portdocelowyint);
 
 	// Sequence number (32 bits)
-	tcphdr.th_seq = htonl(numersekwencyjnyint);
+
+	SN = dlsym(Biblioteka, "Ustaw_Numer_Sekwencyjny");
+	SN(&tcphdr, numersekwencyjnyint);
 
 	// Acknowledgement number (32 bits): 0 in first packet of SYN/ACK process
-	tcphdr.th_ack = htonl(nrpotwierdzanegobajtuint);
+	NP = dlsym(Biblioteka, "Ustaw_Nr_Potw_Bajtu");
+	NP(&tcphdr, nrpotwierdzanegobajtuint);
 
 	// Reserved (4 bits): should be 0
-	tcphdr.th_x2 = zarezerwowaneint;
+	RE = dlsym(Biblioteka, "Ustaw_Zarezerwowane");
+	RE(&tcphdr, zarezerwowaneint);
+
 
 	// Data offset (4 bits): size of TCP header in 32-bit words
-	tcphdr.th_off = TCP_HDRLEN / 4;
+	DO = dlsym(Biblioteka, "Data_Offset");
+	DO(&tcphdr, TCP_HDRLEN);
+
 
 	// Flags (8 bits)
 
 	// FIN flag (1 bit)
+
 	tcp_flags[0] = znacznikFINint;
 
 	// SYN flag (1 bit): set to 1
@@ -412,10 +413,14 @@ PD(&tcphdr,portdocelowyint);
 	}
 
 	// Window size (16 bits)
-	tcphdr.th_win = htons(rozmiaroknaint);
+	UDO = dlsym(Biblioteka, "Ustaw_Rozmiar_Okna");
+	UDO(&tcphdr, rozmiaroknaint);
+
 
 	// Urgent pointer (16 bits): 0 (only valid if URG flag is set)
-	tcphdr.th_urp = htons(wskdanychpilnychint);
+	WDP = dlsym(Biblioteka, "Ustaw_Wsk_Danych_Pilnych");
+	WDP(&tcphdr, wskdanychpilnychint);
+
 
 	// TCP checksum (16 bits)
 	tcphdr.th_sum = tcp4_checksum(iphdr, tcphdr);
@@ -428,8 +433,6 @@ PD(&tcphdr,portdocelowyint);
 	// Naglowek protokolu warstwy wyzszej
 	memcpy((packet + IP4_HDRLEN), &tcphdr, TCP_HDRLEN * sizeof(uint8_t));
 
-
-
 	// przygotowanie naglowka ethernet-podajemy docelowy adres zeby wiedziec gdzie wyslac datagram i do sendto()
 	memset(&sin, 0, sizeof(struct sockaddr_in));
 	sin.sin_family = AF_INET;
@@ -441,13 +444,11 @@ PD(&tcphdr,portdocelowyint);
 		exit(EXIT_FAILURE);
 	}
 
-
 	//ustawienie flagi socketa na naglowek ipv4
 	if (setsockopt(sd, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0) {
 		perror("setsockopt() failed to set IP_HDRINCL ");
 		exit(EXIT_FAILURE);
 	}
-
 
 	//zbidnowanie socketa na interfejs
 	if (setsockopt(sd, SOL_SOCKET, SO_BINDTODEVICE, &ifr, sizeof(ifr)) < 0) {
