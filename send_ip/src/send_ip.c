@@ -39,38 +39,13 @@ uint16_t tcp4_checksum(struct ip, struct tcphdr);
 char *allocate_strmem(int);
 uint8_t *allocate_ustrmem(int);
 int *allocate_intmem(int);
+void (*IF)(char *, char *);
+void (*IPZ)(char *, char*);
+void (*IPD)(char *,char*);
+void (*PZ)(struct tcphdr *, int);
+void (*PD)(struct tcphdr *, int);
 
-
-int  i;
-
-int main(int argc, char* argv[]) {
-
-
-	puts("Dolaczanie bibliotek dynamicznych");
-	puts("===================================");
-	int status_wyjscia; // do dlclose
-	void *Biblioteka; // wskaznik do bilbioteki
-	int(*Funkcja)(int, int); //wskzanik do fukcji
-	//double(*Funkcja1)(int, int); //wskzanik do fukcji1
-	Biblioteka = dlopen("/home/wojciech/Pulpit/Projekt/origin/send_ip/src/biblioteka.so", RTLD_LAZY);
-	if(!Biblioteka) {
-	printf ("Error otwarcia: %s\n", dlerror());
-	return(1);
-	}
-	Funkcja = dlsym(Biblioteka, "suma");
-	printf ("suma:%d \n", Funkcja (4, 2));
-	if (Funkcja== NULL) {
-	printf ("Blad wywolania funkcji 'roznica()': brak w bibliotece\n");
-	} else {
-	printf ("roznica:%d \n", Funkcja (8, 2));
-	}
-	status_wyjscia = dlclose (Biblioteka);
-	if(status_wyjscia) { // jesli 0 (falsz) -> dlopen() zamknela biblioteke poprawnie
-	printf ("Error zamkniecia: %s\n", dlerror());
-	return(1);
-	}
-
-	char *instrukcja = "--instrukcja";
+char *instrukcja = "--instrukcja";
 	char *portzrodlowy = "--portzrodlowy";
 	int portzrodlowyint = 667;
 	char *portdocelowy = "--portdocelowy";
@@ -108,6 +83,24 @@ int main(int argc, char* argv[]) {
 	char ipzrodlowychar[] ="192.168.255.139";
 	char *ipdocelowy ="--ipdocelowy";
 	char ipdocelowychar[] ="127.0.0.1";
+
+int  i;
+
+int main(int argc, char* argv[]) {
+
+
+	puts("USTAWIONO PARAMETRY:");
+	puts("===================================");
+
+	void *Biblioteka; // wskaznik do bilbioteki
+	int(*Funkcja)(int, int); //wskzanik do fukcji
+	//double(*Funkcja1)(int, int); //wskzanik do fukcji1
+	Biblioteka = dlopen("/home/wojciech/Pulpit/Projekt/origin/send_ip/src/biblioteka.so", RTLD_LAZY);
+
+
+
+
+
 
 	for (i = 1; i < argc; i++) { //printf("NUMER:  %d\n",i);
 		char *argv1 = argv[i];
@@ -250,7 +243,9 @@ int main(int argc, char* argv[]) {
 	tcp_flags = allocate_intmem(8);
 
 	// skonfigurowanie interfejsu
-	strcpy(interface, interfejschar);
+
+	IF = dlsym(Biblioteka, "Ustaw_Interfejs");
+		IF(interface, interfejschar);
 
 	// Wysłanie zadania abu sprawdzic deskryptor soketa
 	if ((sd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0) {
@@ -270,11 +265,14 @@ int main(int argc, char* argv[]) {
 	//printf ("Index for interface %s is %i\n", interface, ifr.ifr_ifindex);
 
 	// Adres zrodlowy
-	strcpy(src_ip,ipzrodlowychar);
+	IPZ = dlsym(Biblioteka, "Ustaw_IP_Zrodlowe");
+			IPZ(src_ip, ipzrodlowychar);
+
 
 	// adres docelowy
-	// strcpy (target, argv[2]);
-	strcpy(target,ipdocelowychar);
+ IPD =dlsym(Biblioteka, "Ustaw_IP_Docelowe");
+ IPD(target,ipdocelowychar);
+
 
 	// wypelnienie hints dla getaddrinfo().
 	memset(&hints, 0, sizeof(struct addrinfo));
@@ -360,11 +358,15 @@ int main(int argc, char* argv[]) {
 
 	// Source port number (16 bits)
 	// tcphdr.th_sport = htons (atoi(argv[1]));
-	tcphdr.th_sport = htons(portzrodlowyint);
+	PZ=dlsym(Biblioteka,"Ustaw_Port_Zrodlowy");
+	PZ(&tcphdr, portzrodlowyint);
+	//tcphdr.th_sport = htons(portzrodlowyint);
 
 	// Destination port number (16 bits)
 	//tcphdr.th_dport = htons (80);
-	tcphdr.th_dport = htons(portdocelowyint);
+PD=dlsym(Biblioteka,"Ustaw_Port_Docelowy");
+PD(&tcphdr,portdocelowyint);
+	//tcphdr.th_dport = htons(portdocelowyint);
 
 	// Sequence number (32 bits)
 	tcphdr.th_seq = htonl(numersekwencyjnyint);
