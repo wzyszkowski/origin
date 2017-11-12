@@ -35,6 +35,8 @@ uint16_t tcp4_checksum(struct ip, struct tcphdr);
 char *allocate_strmem(int);
 uint8_t *allocate_ustrmem(int);
 int *allocate_intmem(int);
+
+//wskaźniki na funkcje
 void (*IF)(char *, char *);
 void (*IPZ)(char *, char*);
 void (*IPD)(char *, char*);
@@ -82,9 +84,16 @@ char *interfejs = "--interfejs";
 //char *interfejschar="wlp3s0";
 char *interfejschar = "lo";
 char *ipzrodlowy = "--ipzrodlowy";
-char ipzrodlowychar[] = "192.168.255.139";
+char ipzrodlowychar[] = "192.168.0.227";
 char *ipdocelowy = "--ipdocelowy";
 char ipdocelowychar[] = "127.0.0.1";
+char *ttl = "--ttl";
+int ttlint = 255;
+char *typuslugi = "--typuslugi";
+int typuslugiint = 0;
+char *sumaktcp = "--sumatcp";
+int sumaktcpint = 1;
+int sumatcp = 0;
 
 int i;
 
@@ -94,26 +103,25 @@ int main(int argc, char* argv[]) {
 	puts("===================================");
 
 	void *Biblioteka; // wskaznik do bilbioteki
-	int (*Funkcja)(int, int); //wskzanik do fukcji
-	//double(*Funkcja1)(int, int); //wskzanik do fukcji1
+
 	Biblioteka = dlopen(
 			"/home/wojciech/Pulpit/Projekt/origin/send_ip/src/biblioteka.so",
 			RTLD_LAZY);
 
-	for (i = 1; i < argc; i++) { //printf("NUMER:  %d\n",i);
+	for (i = 1; i < argc; i++) {
 		char *argv1 = argv[i];
 		if (0 == strcmp(instrukcja, argv1)) {
-			//printf("argv[1] result isaa %s\n", argv[1]);
+
 			printf(
 					"Jeżeli chcesz wysłać pakiet IPv4+TCP możesz użyć następujących komend:\n--ipzrodlowy [podaj adres IP] \n--ipdocelowy [podaj adres IP] \n--interfejs [nazwa interfejsu] \n--portzrodlowy [podaj nr portu]\n");
 			printf(
-					"--portdocelowy [podaj numer portu] \n--numersekwencyjny [podaj numer] \n--nrpotwierdzanegobajtu [podaj numer] \n--zarezerwowane [podaj numer] \n--znacznikFIN [podaj numer] \n--znacznikSYN [podaj numer] \n--znacznikRST [podaj numer] \n--znacznikPSH [podaj numer] \n--znacznikACK [podaj numer] \n--znacznikURG [podaj numer] \n--znacznikECE [podaj numer] \n--znacznikCWR [podaj numer] \n--rozmiarokna [podaj rozmiar] \n--wskdanychpilnych [podaj numer]\nPrzykładowa linijka zmieniająca wszystkie pola:\n ... ");
-
+					"--portdocelowy [podaj numer portu] \n--numersekwencyjny [podaj numer] \n--nrpotwierdzanegobajtu [podaj numer] \n--zarezerwowane [podaj numer] \n--znacznikFIN [podaj numer] \n--znacznikSYN [podaj numer] \n--znacznikRST [podaj numer] \n--znacznikPSH [podaj numer] \n--znacznikACK [podaj numer] \n--znacznikURG [podaj numer] \n--znacznikECE [podaj numer] \n--znacznikCWR [podaj numer] \n--rozmiarokna [podaj rozmiar] \n--wskdanychpilnych [podaj numer]\n--typuslugi [podaj numer]\n--ttl [podaj numer]\n--sumatcp [podaj numer]\nPrzykładowa linijka zmieniająca wszystkie pola: sudo ./send_ip --portdocelowy 777 --ipzrodlowy 123.232.121.111 --ipdocelowy 197.187.145.126 --rozmiarokna 12 --wskdanychpilnych22\n ");
+			exit(0);
 		}
 
 		if (0 == strcmp(numersekwencyjny, argv1)) {
-			numersekwencyjnyint = atoi(argv1[i + 1]);
-			//printf("argv[1] result isaa %s\n", argv[1]);
+			numersekwencyjnyint = (argv1[i + 1]);
+
 			printf("numer sekwencyjny %d\n", numersekwencyjnyint);
 		}
 
@@ -201,13 +209,9 @@ int main(int argc, char* argv[]) {
 			printf("interfejs %s\n", interfejschar);
 		}
 		if (0 == strcmp(ipzrodlowy, argv1)) {
-			//sprintf(IPzrodlowychar,"%i",argv1[i+1]);
 
-			//printf("%s\n",argv[i+1]);
-			//ipzrodlowychar[16]= argv[i+1];
 			strcpy(ipzrodlowychar, argv[i + 1]);
-			//int dlugosc=sizeof(ipzrodlowychar)/sizeof(ipzrodlowychar[0]);
-			//	printf("dlugosc: %d",dlugosc);
+
 			printf("IP źródłowy %s\n", ipzrodlowychar);
 		}
 		if (0 == strcmp(ipdocelowy, argv1)) {
@@ -216,10 +220,28 @@ int main(int argc, char* argv[]) {
 
 			printf("IP docelowy %s\n", ipdocelowychar);
 		}
+		if (0 == strcmp(ttl, argv1)) {
+
+			ttlint = atoi(argv[i + 1]);
+
+			printf("Time to live  %d\n", ttlint);
+		}
+		if (0 == strcmp(typuslugi, argv1)) {
+
+			typuslugiint = atoi(argv[i + 1]);
+
+			printf("Typ usługi  %d\n", typuslugiint);
+		}
+
+		if (0 == strcmp(sumaktcp, argv1)) {
+
+			sumaktcpint = atoi(argv[i + 1]);
+
+			printf("Suma Kontrolna TCP  %d\n", sumaktcpint);
+		}
 
 	}
 
-	//printf("NUMER %s",argv[1]);
 	int i, status, sd, *ip_flags, *tcp_flags;
 	const int on = 1;
 	char *interface, *target, *src_ip, *dst_ip;
@@ -259,7 +281,6 @@ int main(int argc, char* argv[]) {
 		return (EXIT_FAILURE);
 	}
 	close(sd);
-	//printf ("Index for interface %s is %i\n", interface, ifr.ifr_ifindex);
 
 	// Adres zrodlowy
 	IPZ = dlsym(Biblioteka, "Ustaw_IP_Zrodlowe");
@@ -298,7 +319,7 @@ int main(int argc, char* argv[]) {
 	iphdr.ip_v = 4;
 
 	// Typ usługi
-	iphdr.ip_tos = 0;
+	iphdr.ip_tos = typuslugiint;
 
 	// długość datagramu czyli IP header + TCP header
 	iphdr.ip_len = htons(IP4_HDRLEN + TCP_HDRLEN);
@@ -325,7 +346,7 @@ int main(int argc, char* argv[]) {
 					+ ip_flags[3]);
 
 	// Time-to-Live (8 bits): default to maximum value
-	iphdr.ip_ttl = 255;
+	iphdr.ip_ttl = ttlint;
 
 	// Transport layer protocol (8 bits): 6 for TCP
 	iphdr.ip_p = IPPROTO_TCP;
@@ -355,7 +376,6 @@ int main(int argc, char* argv[]) {
 	PZ = dlsym(Biblioteka, "Ustaw_Port_Zrodlowy");
 	PZ(&tcphdr, portzrodlowyint);
 
-
 	// Destination port number (16 bits)
 
 	PD = dlsym(Biblioteka, "Ustaw_Port_Docelowy");
@@ -374,11 +394,9 @@ int main(int argc, char* argv[]) {
 	RE = dlsym(Biblioteka, "Ustaw_Zarezerwowane");
 	RE(&tcphdr, zarezerwowaneint);
 
-
 	// Data offset (4 bits): size of TCP header in 32-bit words
 	DO = dlsym(Biblioteka, "Data_Offset");
 	DO(&tcphdr, TCP_HDRLEN);
-
 
 	// Flags (8 bits)
 
@@ -416,14 +434,19 @@ int main(int argc, char* argv[]) {
 	UDO = dlsym(Biblioteka, "Ustaw_Rozmiar_Okna");
 	UDO(&tcphdr, rozmiaroknaint);
 
-
 	// Urgent pointer (16 bits): 0 (only valid if URG flag is set)
 	WDP = dlsym(Biblioteka, "Ustaw_Wsk_Danych_Pilnych");
 	WDP(&tcphdr, wskdanychpilnychint);
 
-
 	// TCP checksum (16 bits)
-	tcphdr.th_sum = tcp4_checksum(iphdr, tcphdr);
+
+	if (sumaktcpint != 1) {
+		tcphdr.th_sum = sumaktcpint;
+	}
+	if (sumaktcpint == 1) {
+		tcphdr.th_sum = tcp4_checksum(iphdr, tcphdr);
+		;
+	}
 
 	// Prepare packet.
 
@@ -475,7 +498,6 @@ int main(int argc, char* argv[]) {
 	free(ip_flags);
 	free(tcp_flags);
 
-	return (EXIT_SUCCESS);
 }
 
 // Computing the internet checksum (RFC 1071).
@@ -597,7 +619,7 @@ uint16_t tcp4_checksum(struct ip iphdr, struct tcphdr tcphdr) {
 	return checksum((uint16_t *) buf, chksumlen);
 }
 
-// Allocate memory for an array of chars.
+//Alokacja pamięci na tablicę charów
 char *
 allocate_strmem(int len) {
 	void *tmp;
@@ -620,7 +642,7 @@ allocate_strmem(int len) {
 	}
 }
 
-// Allocate memory for an array of unsigned chars.
+//Alokacja pamięci na tablicę ucharów
 uint8_t *
 allocate_ustrmem(int len) {
 	void *tmp;
@@ -643,7 +665,7 @@ allocate_ustrmem(int len) {
 	}
 }
 
-// Allocate memory for an array of ints.
+//Alokacja pamięci na tablice intów
 int *
 allocate_intmem(int len) {
 	void *tmp;
