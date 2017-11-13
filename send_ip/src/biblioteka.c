@@ -1,9 +1,8 @@
 /*
  * biblioteka.c
-
  *
  *  Created on: 28-10-2017
- *      Author: wojciech
+ *      Author: wojciech zyszkowski
  */
 
 #include <string.h>

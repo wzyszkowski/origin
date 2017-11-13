@@ -267,20 +267,6 @@ int main(int argc, char* argv[]) {
 	IF = dlsym(Biblioteka, "Ustaw_Interfejs");
 	IF(interface, interfejschar);
 
-	// Wysłanie zadania abu sprawdzic deskryptor soketa
-	if ((sd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0) {
-		perror("socket() failed to get socket descriptor for using ioctl() ");
-		exit(EXIT_FAILURE);
-	}
-
-	//sprawdzenie numeru interfejsu i bindowanie
-	memset(&ifr, 0, sizeof(ifr));
-	snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", interface);
-	if (ioctl(sd, SIOCGIFINDEX, &ifr) < 0) {
-		perror("ioctl() failed to find interface ");
-		return (EXIT_FAILURE);
-	}
-	close(sd);
 
 	// Adres zrodlowy
 	IPZ = dlsym(Biblioteka, "Ustaw_IP_Zrodlowe");
